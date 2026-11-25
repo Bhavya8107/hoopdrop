@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload files — Take the Shot 🏀</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1 class="header-title">Upload files</h1>
+        <p class="header-subtitle">Drag and drop, or take the shot.</p>
+      </div>
+      <div class="header-right">
+        <div class="counter-badge" id="upload-counter">
+          <span>Uploaded</span>
+          <span class="count-num" id="count-value">0</span>
+        </div>
+        <button id="sound-btn" class="sound-toggle-btn" title="Toggle audio effects">
+          <svg class="sound-on-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg class="sound-off-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Arena / Drop Zone -->
+    <main class="main-stage" id="stage">
+      <!-- Hidden file input for clicks -->
+      <input type="file" id="file-input" multiple style="display:none;">
+
+      <!-- Dashed Drop Area Card -->
+      <div class="drop-card" id="drop-zone">
+        <div class="drop-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+            <polyline points="7 9 12 4 17 9"></polyline>
+            <line x1="12" y1="4" x2="12" y2="16"></line>
+          </svg>
+        </div>
+        <div class="drop-title">Drop files here</div>
+        <div class="drop-subtitle">or take the shot</div>
+      </div>
+
+      <!-- Basketball Hoop Structure -->
+      <div class="hoop-assembly" id="hoop-assembly">
+        <!-- Backboard -->
+        <div class="backboard">
+          <div class="target-rect"></div>
+        </div>
+
+        <!-- Rim & Net layers -->
+        <div class="hoop-rim-container">
+          <!-- Back Rim (sits behind falling ball) -->
+          <div class="rim-back"></div>
+
+          <!-- Dynamic SVG Net (animates on file swish) -->
+          <svg class="net-svg" id="net-svg" viewBox="0 0 120 90" preserveAspectRatio="none">
+            <!-- Net Mesh Lines -->
+            <path class="net-strand" d="M10,0 L20,35 L40,65 L60,85" />
+            <path class="net-strand" d="M30,0 L35,35 L50,65 L60,85" />
+            <path class="net-strand" d="M50,0 L48,35 L55,65 L60,85" />
+            <path class="net-strand" d="M70,0 L72,35 L65,65 L60,85" />
+            <path class="net-strand" d="M90,0 L85,35 L70,65 L60,85" />
+            <path class="net-strand" d="M110,0 L100,35 L80,65 L60,85" />
+
+            <path class="net-strand" d="M110,0 L100,35 L80,65 L60,85" />
+            <path class="net-strand" d="M90,0 L85,35 L70,65 L60,85" />
+            <path class="net-strand" d="M70,0 L55,35 L45,65 L60,85" />
+            <path class="net-strand" d="M50,0 L65,35 L75,65 L60,85" />
+            <path class="net-strand" d="M30,0 L35,35 L50,65 L60,85" />
+            <path class="net-strand" d="M10,0 L20,35 L40,65 L60,85" />
+
+            <!-- Horizontal / Diamond Cross Ropes -->
+            <path class="net-loop" d="M12,18 Q60,26 108,18" />
+            <path class="net-loop" d="M22,38 Q60,48 98,38" />
+            <path class="net-loop" d="M36,60 Q60,70 84,60" />
+            <path class="net-loop" d="M52,82 Q60,87 68,82" />
+          </svg>
+
+          <!-- Front Rim (overlaps ball to create authentic depth inside hoop) -->
+          <div class="rim-front"></div>
+        </div>
+      </div>
+
+      <!-- Dotted Trajectory Arc & Slingshot Aiming Guide -->
+      <svg id="trajectory-svg" class="trajectory-svg">
+        <path id="trajectory-line" class="trajectory-line" d=""></path>
+        <g id="trajectory-dots"></g>
+      </svg>
+
+      <!-- Particle Canvas for drag dust & swish sparks -->
+      <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+      <!-- Draggable File Cards (Shooting Zone) -->
+      <div class="shooting-court" id="shooting-court">
+        <!-- Interactive Initial File (matching reel: "final fileeeee") -->
+        <div class="shootable-file" id="sample-file" data-name="final fileeeee" data-size="2.4 MB" data-type="pdf">
+          <div class="slingshot-hint" id="slingshot-hint">
+            <span>👇</span> Pull down to aim & throw
+          </div>
+          <div class="file-icon-card">
+            <div class="file-paper">
+              <div class="file-corner-fold"></div>
+              <div class="pdf-tag">PDF</div>
+              <div class="file-lines">
+                <div class="line l1"></div>
+                <div class="line l2"></div>
+                <div class="line l3"></div>
+              </div>
+            </div>
+          </div>
+          <span class="file-label">final fileeeee</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Uploaded File Toast / Progress Card -->
+    <div class="upload-shelf" id="upload-shelf">
+      <!-- Upload progress items dynamically injected here -->
+    </div>
+
+    <!-- Quick action footer: Try again / Add new file -->
+    <footer class="app-footer">
+      <button class="footer-btn" id="new-ball-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        New shot file
+      </button>
+      <button class="footer-btn" id="reset-counter-btn">Reset</button>
+    </footer>
+  </div>
+
+  <script src="audio.js?v=4.0"></script>
+  <script src="app.js?v=4.0"></script>
+</body>
+
+</html>
